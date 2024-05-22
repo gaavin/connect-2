@@ -83,3 +83,24 @@ pages_build_output_dir = "./build/client"
 # [[env.production.kv_namespaces]]
 # binding = "MY_KV_NAMESPACE"
 # id = "<PRODUCTION_NAMESPACE_ID>"
+
+[vars]
+API_KEY = "xyz789"
+
+[[kv_namespaces]]
+binding = "KV_DEVELOPMENT"
+id = "d1f0922e74434ba5b1d7229b2fd4e635"
+
+[[kv_namespaces]]
+binding = "KV_PRODUCTION"
+id = "f7f5e376eb0a4ccd85cc0a04817ee3c3"
+
+[[d1_databases]]
+binding = "DB_PRODUCTION"
+database_name = "connect-2-production"
+database_id = "22ab2800-d12c-4726-aec0-d72215f5358f"
+
+[[d1_databases]]
+binding = "DB_DEVELOPMENT"
+database_name = "connect-2-development"
+database_id = "991c9275-7d44-4db0-95c3-d2af6731015b"
