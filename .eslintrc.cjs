@@ -30,11 +30,15 @@ module.exports = {
       files: ["**/*.{js,jsx,ts,tsx}"],
       plugins: ["react", "jsx-a11y"],
       extends: [
+        'eslint-plugin-react-compiler',
         "plugin:react/recommended",
         "plugin:react/jsx-runtime",
         "plugin:react-hooks/recommended",
         "plugin:jsx-a11y/recommended",
       ],
+      rules: {
+        'react-compiler/react-compiler': "error",
+      },
       settings: {
         react: {
           version: "detect",
