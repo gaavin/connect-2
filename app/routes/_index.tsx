@@ -1,4 +1,5 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
+import { json, useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -10,7 +11,12 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export function loader({ request, context }: LoaderFunctionArgs) {
+  return json({ message: "Hello from the loader!" });
+}
+
 export default function Index() {
+  const loaderData = useLoaderData<typeof loader>();
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
       <h1>Welcome to Remix (with Vite and Cloudflare)</h1>

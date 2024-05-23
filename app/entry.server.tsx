@@ -5,8 +5,10 @@
  */
 
 import type { AppLoadContext, EntryContext } from "@remix-run/cloudflare";
+import { setRemixDevLoadContext } from "@remix-run/dev/dist/vite/plugin";
 import { RemixServer } from "@remix-run/react";
 import { isbot } from "isbot";
+import { setLoadContext } from "load-context";
 import { renderToReadableStream } from "react-dom/server";
 
 export default async function handleRequest(
@@ -19,8 +21,12 @@ export default async function handleRequest(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadContext: AppLoadContext
 ) {
+  setLoadContext(loadContext);
   const body = await renderToReadableStream(
-    <RemixServer context={remixContext} url={request.url} />,
+    <RemixServer
+      context={{ ...remixContext, ...loadContext }}
+      url={request.url}
+    />,
     {
       signal: request.signal,
       onError(error: unknown) {
