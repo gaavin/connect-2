@@ -1,21 +1,29 @@
 import { AppLoadContext } from "@remix-run/cloudflare";
 import { EventEmitter } from "node:events";
-import { debugFactory } from "~/lib/utils";
+import debugFactory from "debug";
+
+const debug = debugFactory("app:lib:events.server");
 
 // 🚀 Define events here
 const eventHandlers = {
   onSetLoadContext: async (context: AppLoadContext) => {
     debug(`🔧 Set load context: ${context}`);
   },
-  onRequest: async (context: AppLoadContext) => {
-    debug(`✨ Request: ${context.cloudflare}`);
+  onRequest: async ({
+    request,
+    context,
+  }: {
+    request: Request;
+    context: AppLoadContext;
+  }) => {
+    debug(`✨ Request: ${request}`);
+    debug(`🔧 Context: ${context}`);
   },
   onParsed: async <Data>(data: Data) => {
     debug(`💎 Parsed: ${data}`);
   },
 } as const;
 
-const debug = debugFactory("app:lib:events.server");
 const eventEmitter = new EventEmitter();
 
 type Event = typeof eventHandlers;

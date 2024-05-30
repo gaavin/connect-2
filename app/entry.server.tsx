@@ -8,7 +8,9 @@ import type { AppLoadContext, EntryContext } from "@remix-run/cloudflare";
 import { RemixServer } from "@remix-run/react";
 import { isbot } from "isbot";
 import { renderToReadableStream } from "react-dom/server";
-import { registerEventHandlers } from "./lib/events.server";
+import { emitEvent, registerEventHandlers } from "./lib/events.server";
+import { injectDependencies } from "./lib/loadContext.server";
+import { getLoadContext } from "load-context";
 
 export default async function handleRequest(
   request: Request,
@@ -20,7 +22,12 @@ export default async function handleRequest(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadContext: AppLoadContext
 ) {
+  loadContext = getLoadContext({
+    request,
+    context: { ...remixContext, ...loadContext },
+  });
   registerEventHandlers();
+  emitEvent("onRequest", { context: loadContext, request });
   const body = await renderToReadableStream(
     <RemixServer
       context={{ ...remixContext, ...loadContext }}
