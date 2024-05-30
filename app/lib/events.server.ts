@@ -1,11 +1,13 @@
 import { AppLoadContext } from "@remix-run/cloudflare";
 import { EventEmitter } from "node:events";
-import debugFactory from "debug";
-import { isType } from "./utils";
+import { debugFactory } from "~/lib/utils";
 
+// 🚀 Define events here
 const eventHandlers = {
-  onLoadContextReady: async (context: AppLoadContext) => {
-    emitEvent("onLoadContextReady", context);
+  onSetLoadContext: async (context: AppLoadContext) => {
+    debug(`🔧 Set load context: ${context}`);
+  },
+  onRequest: async (context: AppLoadContext) => {
     debug(`✨ Request: ${context.cloudflare}`);
   },
   onParsed: async <Data>(data: Data) => {
@@ -39,10 +41,12 @@ export async function onEvent<
   });
 }
 
-Object.keys(eventHandlers).map((eventName) => {
-  const eventHandler = eventHandlers[eventName as EventName];
-  debug(
-    `💎 Registering event handler ${eventHandler.toString()} for ${eventName}`
-  );
-  eventEmitter.on(eventName, eventHandler);
-});
+export function registerEventHandlers(items = eventHandlers) {
+  Object.keys(items).map((eventName) => {
+    const eventHandler = eventHandlers[eventName as EventName];
+    debug(
+      `🚀 Registering event handler ${eventHandler.toString()} for ${eventName}`
+    );
+    eventEmitter.on(eventName, eventHandler);
+  });
+}

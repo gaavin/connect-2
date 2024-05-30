@@ -12,6 +12,7 @@ export const meta: MetaFunction = () => {
 };
 
 export function loader({ request, context }: LoaderFunctionArgs) {
+  console.log(context);
   return json({ message: "Hello from the loader!" });
 }
 

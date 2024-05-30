@@ -1,10 +1,20 @@
 import { type PlatformProxy } from "wrangler";
+import { injectDependencies } from "~/lib/loadContext.server";
 
 export type Cloudflare = Omit<PlatformProxy<Env>, "dispose">;
-declare module "@remix-run/cloudflare" {
-  interface AppLoadContext {
-    cloudflare: Cloudflare;
-  }
+
+export type GetLoadContextArgs = {
+  request: Request;
+  context: { cloudflare: Cloudflare };
+};
+
+export function getLoadContext({ request, context }: GetLoadContextArgs) {
+  return {
+    ...context,
+    ...injectDependencies({ request, context }),
+  };
 }
 
-// no need to touch this file, use ~/app/lib/loadContext.ts instead
+declare module "@remix-run/cloudflare" {
+  interface AppLoadContext extends ReturnType<typeof getLoadContext> {}
+}
