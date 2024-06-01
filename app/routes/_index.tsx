@@ -1,5 +1,10 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
-import { json, useLoaderData } from "@remix-run/react";
+import { defer, json, useLoaderData } from "@remix-run/react";
+import debugFactory from "debug";
+import { useContext } from "~/lib/context.server";
+import { onEvent } from "~/lib/events.server";
+
+const debug = debugFactory("app:routes:_index");
 
 export const meta: MetaFunction = () => {
   return [
@@ -11,13 +16,22 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export function loader({ request, context }: LoaderFunctionArgs) {
-  console.log(context);
-  return json({ message: "Hello from the loader!" });
+export async function loader({ context }: LoaderFunctionArgs) {
+  console.log("loader context", context);
+  useContext.setState({ ...context, dbProduction: null });
+  console.log("AAAA", context);
+  console.log("BBBB", useContext.getState());
+  const p = onEvent("onContextChange", (diff) => {
+    console.log("onContextChange", diff);
+  });
+  return defer({ p });
 }
 
-export default function Index() {
+export default async function Index() {
   const loaderData = useLoaderData<typeof loader>();
+  console.log(await loaderData.p);
+
+  debug("browser context", loaderData);
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
       <h1>Welcome to Remix (with Vite and Cloudflare)</h1>

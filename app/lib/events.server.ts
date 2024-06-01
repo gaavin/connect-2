@@ -1,32 +1,19 @@
-import { AppLoadContext } from "@remix-run/cloudflare";
 import { EventEmitter } from "node:events";
 import debugFactory from "debug";
+import { Diff } from "./utils";
+import { QuirkedUpContext } from "./context.server";
 
 const debug = debugFactory("app:lib:events.server");
 
-// 🚀 Define events here
-const eventHandlers = {
-  onSetLoadContext: async (context: AppLoadContext) => {
-    debug(`🔧 Set load context: ${context}`);
-  },
-  onRequest: async ({
-    request,
-    context,
-  }: {
-    request: Request;
-    context: AppLoadContext;
-  }) => {
-    debug(`✨ Request: ${request}`);
-    debug(`🔧 Context: ${context}`);
-  },
-  onParsed: async <Data>(data: Data) => {
-    debug(`💎 Parsed: ${data}`);
-  },
-} as const;
+// 🚀 Define event types here
+type Event = {
+  onContextChange: (diff: Diff<QuirkedUpContext>) => void;
+  onRequest: (context: QuirkedUpContext) => void;
+  onParsed: <TData>(data: TData) => void;
+};
 
 const eventEmitter = new EventEmitter();
 
-type Event = typeof eventHandlers;
 type EventName = keyof Event;
 type EventHandler = Event[EventName];
 
@@ -46,15 +33,5 @@ export async function onEvent<
       await eventHandler(args);
       resolve();
     });
-  });
-}
-
-export function registerEventHandlers(items = eventHandlers) {
-  Object.keys(items).map((eventName) => {
-    const eventHandler = eventHandlers[eventName as EventName];
-    debug(
-      `🚀 Registering event handler ${eventHandler.toString()} for ${eventName}`
-    );
-    eventEmitter.on(eventName, eventHandler);
   });
 }
